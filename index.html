@@ -503,13 +503,13 @@
   <div class="about-top">
     <div class="about-left">
       <h1>After a flood, most people lose their job before they run out of food.</h1>
-      <p>We spent a semester trying to figure out why food insecurity spikes so sharply after disasters. The short answer: when roads go out and employers close, people have no income to buy food even after stores reopen. This project maps where the jobs are.</p>
+      <p>We spent a few days trying to figure out why food insecurity spikes so sharply after disasters. The short answer: when roads go out and employers close, people have no income to buy food even after stores reopen. This project maps where the jobs are.</p>
       <button class="btn-go" onclick="showTab('map', document.querySelectorAll('nav button')[1])">Go to the map</button>
     </div>
     <div class="about-right">
       <div class="stat-block">
         <span class="n">2.3B</span>
-        <span class="desc">people face food insecurity globally each year</span>
+        <span class="desc">people face poverty globally each year</span>
       </div>
       <div class="stat-block">
         <span class="n">~38%</span>
@@ -521,7 +521,7 @@
       </div>
       <div class="stat-block">
         <span class="n">72 hrs</span>
-        <span class="desc">before short-term displacement starts becoming long-term food insecurity</span>
+        <span class="desc">before short-term displacement starts becoming long-term poverty</span>
       </div>
     </div>
   </div>
@@ -529,8 +529,8 @@
   <div class="about-body">
 
     <h2>Why we focused on hunger</h2>
-    <p>Most reporting on post-flood food insecurity focuses on supply chains — trucks not getting through, shelves being empty. That's real, but the data we kept finding pointed somewhere different: income. <strong>People weren't hungry because there was no food available. They were hungry because they couldn't afford it anymore.</strong> That shifted how we thought about the whole problem.</p>
-    <p>Food insecurity after a flood is usually three separate problems at once, and most aid programs only address one of them:</p>
+    <p>Most reporting on post-flood poverty focuses on supply chains — trucks not getting through, shelves being empty. That's real, but the data we kept finding pointed somewhere different: income. <strong>People weren't hungry because there was no food available. They were hungry because they couldn't afford it anymore.</strong> That shifted how we thought about the whole problem.</p>
+    <p>poverty after a flood is usually three separate problems at once, and most aid programs only address one of them:</p>
 
     <div class="problem-cols">
       <div class="problem-col">
@@ -599,7 +599,7 @@
   </div>
 
   <div class="pg-footer">
-    FloodRelief Connect &nbsp;&middot;&nbsp; AP Research, spring 2025 &nbsp;&middot;&nbsp; data from FEMA, NOAA, Feeding America
+    FloodRelief Connect &nbsp;&middot;&nbsp; Codeathon, 2026 &nbsp;&middot;&nbsp; data from FEMA, NOAA, Feeding America
   </div>
 </div>
 
@@ -660,7 +660,7 @@
 
   <div class="team-note">
     <h2>Why this topic</h2>
-    <p>We went in thinking food insecurity and disaster relief were two separate things you'd study in different journals. Somewhere around week three we realized they were the same problem and researchers were just describing it from different angles. This project was our attempt to show that overlap on a map.</p>
+    <p>We went in thinking poverty and disaster relief were two separate things you'd study in different journals. Somewhere around day 10 we realized they were the same problem and researchers were just describing it from different angles. This project was our attempt to show that overlap on a map.</p>
   </div>
 
   <div class="pg-footer">
@@ -700,7 +700,7 @@ var floodZones = [
     id: 'mississippi', name: 'Mississippi Delta',
     lat: 32.7765, lng: -89.3951, severity: 'severe', color: '#b03020',
     pop: '180,000',
-    desc: 'Spring flooding along the Mississippi River. Region had high food insecurity before the event.',
+    desc: 'Spring flooding along the Mississippi River. Region had high poverty before the event.',
     jobs: [
       { title: 'Agricultural Recovery Worker', org: 'USDA Farm Recovery',         loc: 'Greenville, MS', type: 'Temp',      badge: 'badge-temp', res: ['Stipend','Food Access'] },
       { title: 'Levee Inspection Support',     org: 'US Army Corps of Engineers', loc: 'Vicksburg, MS',  type: 'Paid',      badge: 'badge-paid', res: ['Stipend'] },
@@ -722,7 +722,7 @@ var floodZones = [
     id: 'midwest', name: 'Iowa / Nebraska',
     lat: 41.2619, lng: -95.8608, severity: 'moderate', color: '#d07820',
     pop: '67,000',
-    desc: 'Snowmelt flooding hit farmland and rural towns. Most of the food insecurity here is crop-loss driven.',
+    desc: 'Snowmelt flooding hit farmland and rural towns. Most of the poverty here is crop-loss driven.',
     jobs: [
       { title: 'Farm Recovery Coordinator', org: 'Midwest Farmers Union',  loc: 'Council Bluffs, IA', type: 'Paid',      badge: 'badge-paid', res: ['Stipend','Meals'] },
       { title: 'Road Repair Crew',          org: 'Nebraska DOT Emergency', loc: 'Omaha, NE',          type: 'Temp',      badge: 'badge-temp', res: ['Both'] },
