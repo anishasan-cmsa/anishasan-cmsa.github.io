@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FloodRelief Connect</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: #f2e8d9;
+      color: #1a1008;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    header {
+      background: #f2e8d9;
+      border-bottom: 1px solid #b89a72;
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      position: sticky;
+      top: 0;
+      z-index: 500;
+    }
+
+    .site-title {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    nav { display: flex; border: 1px solid #b89a72; overflow: hidden; }
+
+    nav button {
+      background: none;
+      border: none;
+      border-right: 1px solid #b89a72;
+      padding: 6px 18px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      color: #5a3a1a;
+      cursor: pointer;
+    }
+
+    nav button:last-child { border-right: none; }
+    nav button:hover { background: #e8d8c0; }
+    nav button.active { background: #5a3a1a; color: #f2e8d9; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ===== ABOUT ===== */
+
+    .about-top {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      border-bottom: 1px solid #b89a72;
+    }
+
+    .about-left {
+      padding: 52px 44px 48px;
+      border-right: 1px solid #b89a72;
+    }
+
+    .about-left h1 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 29px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 18px;
+      max-width: 500px;
+    }
+
+    .about-left p {
+      font-size: 15px;
+      color: #4a2e10;
+      max-width: 480px;
+      font-weight: 300;
+      margin-bottom: 22px;
+    }
+
+    .btn-go {
+      background: #5a3a1a;
+      color: #f2e8d9;
+      padding: 8px 20px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-go:hover { background: #3d2210; }
+
+    .about-right {
+      padding: 24px 22px;
+      background: #e8d8c0;
+    }
+
+    .stat-block {
+      padding: 14px 0;
+      border-bottom: 1px solid #b89a72;
+    }
+
+    .stat-block:last-child { border-bottom: none; }
+
+    .stat-block .n {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 25px;
+      font-weight: 600;
+      color: #5a3a1a;
+      display: block;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-block .desc {
+      font-size: 12px;
+      color: #6b4820;
+      font-weight: 300;
+    }
+
+    .about-body {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 48px 44px;
+    }
+
+    .about-body h2 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .about-body p {
+      color: #3d2510;
+      margin-bottom: 16px;
+      font-weight: 300;
+    }
+
+    .about-body p strong {
+      font-weight: 500;
+      color: #1a1008;
+    }
+
+    .problem-cols {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 0.95fr;
+      gap: 1px;
+      background: #b89a72;
+      border: 1px solid #b89a72;
+      margin: 22px 0 44px;
+    }
+
+    .problem-col {
+      background: #f2e8d9;
+      padding: 20px 18px;
+    }
+
+    .problem-col h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 7px;
+    }
+
+    .problem-col p {
+      font-size: 13px;
+      color: #5a3a1a;
+      font-weight: 300;
+      margin: 0;
+    }
+
+    .process-list {
+      margin: 20px 0 0;
+      border-left: 2px solid #b89a72;
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .process-entry .step-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #9a7050;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .process-entry h3 {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .process-entry p {
+      font-size: 14px;
+      color: #4a2e10;
+      font-weight: 300;
+      margin: 0;
+    }
+
+    .future-section {
+      background: #2a1608;
+      color: #e8d8c0;
+      padding: 48px 44px;
+    }
+
+    .future-section h2 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .future-section > p {
+      font-size: 14px;
+      color: #a07848;
+      font-weight: 300;
+      max-width: 540px;
+      margin-bottom: 28px;
+    }
+
+    .future-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 660px;
+    }
+
+    .future-item { display: flex; gap: 16px; }
+
+    .fi-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #c8a870;
+      white-space: nowrap;
+      min-width: 130px;
+      padding-top: 1px;
+    }
+
+    .future-item p {
+      font-size: 13px;
+      color: #a09070;
+      font-weight: 300;
+      margin: 0;
+    }
+
+    .pg-footer {
+      background: #1a1008;
+      color: #6b4820;
+      font-size: 12px;
+      padding: 13px 44px;
+      font-weight: 300;
+    }
+
+    /* ===== MAP ===== */
+    .map-layout {
+      display: flex;
+      height: calc(100vh - 41px);
+    }
+
+    .map-sidebar {
+      width: 296px;
+      flex-shrink: 0;
+      background: #f2e8d9;
+      border-right: 1px solid #b89a72;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-head {
+      padding: 14px 16px 11px;
+      border-bottom: 1px solid #b89a72;
+    }
+
+    .sidebar-head h2 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .sidebar-head p { font-size: 12px; color: #7a5030; font-weight: 300; }
+
+    .filter-row {
+      padding: 8px 14px;
+      border-bottom: 1px solid #b89a72;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      padding: 3px 9px;
+      border: 1px solid #b89a72;
+      background: #f2e8d9;
+      color: #5a3a1a;
+      cursor: pointer;
+    }
+
+    .filter-btn.on { background: #5a3a1a; color: #f2e8d9; border-color: #5a3a1a; }
+
+    .legend {
+      padding: 8px 14px;
+      border-bottom: 1px solid #b89a72;
+      font-size: 11px;
+      color: #7a5030;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .leg-row { display: flex; align-items: center; gap: 7px; }
+    .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    .results-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+    .results-empty { padding: 22px 8px; text-align: center; color: #9a7050; font-size: 13px; font-weight: 300; }
+
+    .zone-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #5a3a1a;
+      border-bottom: 1px solid #b89a72;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .job-card {
+      border: 1px solid #c8a870;
+      background: #ede0cc;
+      padding: 10px 11px;
+      margin-bottom: 7px;
+    }
+
+    .jc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 3px; }
+
+    .job-title { font-size: 13px; font-weight: 500; color: #1a1008; line-height: 1.3; }
+
+    .job-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      border: 1px solid currentColor;
+    }
+
+    .badge-paid { color: #2d6a2d; }
+    .badge-vol  { color: #7a6000; }
+    .badge-temp { color: #7a3000; }
+
+    .job-org { font-size: 11px; color: #7a5030; margin-bottom: 6px; font-weight: 300; }
+    .job-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    .resource-tag {
+      font-size: 10px;
+      background: #d8c8b0;
+      padding: 1px 6px;
+      color: #5a3a1a;
+      font-weight: 300;
+    }
+
+    #map { flex: 1; }
+
+    .leaflet-popup-content-wrapper {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      border-radius: 0;
+    }
+
+    .lf-popup h4 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .lf-popup p  { color: #5a3a1a; font-size: 12px; margin-bottom: 6px; line-height: 1.5; font-weight: 300; }
+    .lf-popup .pop-meta { font-size: 11px; color: #7a5030; margin-bottom: 8px; }
+
+    .lf-popup button {
+      background: #5a3a1a;
+      color: #f2e8d9;
+      border: none;
+      padding: 5px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    /* ===== TEAM ===== */
+    .team-top {
+      padding: 48px 44px 36px;
+      border-bottom: 1px solid #b89a72;
+      max-width: 680px;
+    }
+
+    .team-top h1 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .team-top p { font-size: 15px; color: #4a2e10; font-weight: 300; }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #b89a72;
+    }
+
+    .team-card {
+      padding: 36px 40px;
+      border-right: 1px solid #b89a72;
+    }
+
+    .team-card:last-child { border-right: none; }
+
+    .tc-name {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .tc-role {
+      font-size: 11px;
+      color: #9a7050;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .tc-bio {
+      font-size: 14px;
+      color: #4a2e10;
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    .tc-quote {
+      font-family: 'IBM Plex Serif', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: #7a5030;
+    }
+
+    .team-note {
+      padding: 36px 44px;
+      background: #e8d8c0;
+      border-bottom: 1px solid #b89a72;
+      max-width: 620px;
+    }
+
+    .team-note h2 {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .team-note p { font-size: 14px; color: #4a2e10; font-weight: 300; }
+
+    @media (max-width: 760px) {
+      .about-top { grid-template-columns: 1fr; }
+      .about-right { border-top: 1px solid #b89a72; }
+      .problem-cols { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .team-card { border-right: none; border-bottom: 1px solid #b89a72; }
+      .map-layout { flex-direction: column; height: auto; }
+      .map-sidebar { width: 100%; height: 280px; }
+      #map { height: 420px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">FloodRelief Connect</div>
+  <nav>
+    <button class="active" onclick="showTab('about', this)">About</button>
+    <button onclick="showTab('map', this)">Map &amp; Jobs</button>
+    <button onclick="showTab('team', this)">Team</button>
+  </nav>
+</header>
+
+
+<!-- ABOUT -->
+<div id="tab-about" class="panel active">
+
+  <div class="about-top">
+    <div class="about-left">
+      <h1>After a flood, most people lose their job before they run out of food.</h1>
+      <p>We spent a semester trying to figure out why food insecurity spikes so sharply after disasters. The short answer: when roads go out and employers close, people have no income to buy food even after stores reopen. This project maps where the jobs are.</p>
+      <button class="btn-go" onclick="showTab('map', document.querySelectorAll('nav button')[1])">Go to the map</button>
+    </div>
+    <div class="about-right">
+      <div class="stat-block">
+        <span class="n">2.3B</span>
+        <span class="desc">people face food insecurity globally each year</span>
+      </div>
+      <div class="stat-block">
+        <span class="n">~38%</span>
+        <span class="desc">of income loss in flood zones hits in the first month</span>
+      </div>
+      <div class="stat-block">
+        <span class="n">$82B+</span>
+        <span class="desc">avg. annual US flood damage (NOAA, 2023)</span>
+      </div>
+      <div class="stat-block">
+        <span class="n">72 hrs</span>
+        <span class="desc">before short-term displacement starts becoming long-term food insecurity</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-body">
+
+    <h2>Why we focused on hunger</h2>
+    <p>Most reporting on post-flood food insecurity focuses on supply chains — trucks not getting through, shelves being empty. That's real, but the data we kept finding pointed somewhere different: income. <strong>People weren't hungry because there was no food available. They were hungry because they couldn't afford it anymore.</strong> That shifted how we thought about the whole problem.</p>
+    <p>Food insecurity after a flood is usually three separate problems at once, and most aid programs only address one of them:</p>
+
+    <div class="problem-cols">
+      <div class="problem-col">
+        <h3>Supply chains go down</h3>
+        <p>Roads and storage facilities get damaged at the same time. Food that exists nearby sometimes can't move. Prices spike in the places that already need the most help.</p>
+      </div>
+      <div class="problem-col">
+        <h3>Transportation fails</h3>
+        <p>Workers can't reach employers. Aid trucks can't get in. A lot of coordination that should happen doesn't, because people can't physically get to where they need to be.</p>
+      </div>
+      <div class="problem-col">
+        <h3>Income disappears</h3>
+        <p>Farm workers, hourly service jobs, a lot of people just stop getting paid. Even when food aid is available nearby, families have nothing left once the free supplies run out.</p>
+      </div>
+    </div>
+
+    <h2>How we built this</h2>
+    <p>We used design thinking as a framework, which for us mostly meant doing a lot of research before writing any code.</p>
+
+    <div class="process-list">
+      <div class="process-entry">
+        <div class="step-label">Step 1</div>
+        <h3>Starting with the question of why</h3>
+        <p>Every article about post-flood hunger talked about food supply. But the data we found from USDA and WHO kept pointing somewhere else: income. We spent a while convincing ourselves that was actually the right frame before committing to it.</p>
+      </div>
+      <div class="process-entry">
+        <div class="step-label">Step 2</div>
+        <h3>Finding where floods keep happening</h3>
+        <p>FEMA and NOAA both have public datasets on recurring flood zones. We cross-referenced those with BLS labor market data to figure out where the income gap was biggest after a disaster. The Gulf Coast and Mississippi Delta kept coming up.</p>
+      </div>
+      <div class="process-entry">
+        <div class="step-label">Step 3</div>
+        <h3>Building the map layer by layer</h3>
+        <p>We started with flood zones, then added food distribution sites, then job listings. The point was to put all three in the same view so you could see the gaps between them instead of just reading about them in a report.</p>
+      </div>
+      <div class="process-entry">
+        <div class="step-label">Step 4</div>
+        <h3>Testing and adjusting</h3>
+        <p>We shared it for feedback a couple of times. The main thing that came back was that the sidebar needed to show whether food was included with a job, because for a lot of people that would be the deciding factor between two listings.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="future-section">
+    <h2>What we'd add with more time</h2>
+    <p>The map data is currently static. Here's what we'd want to build in if this were a real tool.</p>
+    <div class="future-list">
+      <div class="future-item">
+        <span class="fi-label">Live FEMA data</span>
+        <p>Pull disaster declarations automatically so the map updates when new zones are added, instead of being hardcoded.</p>
+      </div>
+      <div class="future-item">
+        <span class="fi-label">NOAA forecasts</span>
+        <p>Show areas at elevated risk before flooding happens so job connections can start earlier in the timeline.</p>
+      </div>
+      <div class="future-item">
+        <span class="fi-label">Location filtering</span>
+        <p>Let someone enter a zip code and filter to jobs and food programs within a certain radius of where they actually are.</p>
+      </div>
+      <div class="future-item">
+        <span class="fi-label">Live NGO feeds</span>
+        <p>Pull from Red Cross and Feeding America so listings reflect what's actually available rather than what we found months ago.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    FloodRelief Connect &nbsp;&middot;&nbsp; AP Research, spring 2025 &nbsp;&middot;&nbsp; data from FEMA, NOAA, Feeding America
+  </div>
+</div>
+
+
+<!-- MAP -->
+<div id="tab-map" class="panel">
+  <div class="map-layout">
+    <div class="map-sidebar">
+      <div class="sidebar-head">
+        <h2>Jobs &amp; Relief Map</h2>
+        <p>Click a flood zone marker to see nearby jobs and food sites.</p>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn on" id="f-flood" onclick="toggleFilter('flood')">Flood zones</button>
+        <button class="filter-btn on" id="f-jobs"  onclick="toggleFilter('jobs')">Jobs</button>
+        <button class="filter-btn on" id="f-food"  onclick="toggleFilter('food')">Food sites</button>
+        <button class="filter-btn on" id="f-hubs"  onclick="toggleFilter('hubs')">Relief hubs</button>
+      </div>
+      <div class="legend">
+        <div class="leg-row"><div class="leg-dot" style="background:#b03020;"></div> Severe flood zone</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#d07820;"></div> Moderate flood zone</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#c0980a;"></div> Watch / elevated risk</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#2a7a40;"></div> Job listing</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#2060a0;"></div> Food distribution site</div>
+        <div class="leg-row"><div class="leg-dot" style="background:#6a2a90; border-radius:2px;"></div> Relief hub</div>
+      </div>
+      <div class="results-scroll" id="sidebar-results">
+        <div class="results-empty">Click a zone on the map to see listings.</div>
+      </div>
+    </div>
+    <div id="map"></div>
+  </div>
+</div>
+
+
+<!-- TEAM -->
+<div id="tab-team" class="panel">
+
+  <div class="team-top">
+    <h1>The Team</h1>
+    <p>Two high school students who went way down the rabbit hole on disaster economics for a research class and ended up building this.</p>
+  </div>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="tc-name">[ Your Name ]</div>
+      <div class="tc-role">Design &middot; Development</div>
+      <p class="tc-bio">Built the map and most of the front end. Spent a lot of time getting the Leaflet popups to work correctly and now knows more about FEMA flood zone classifications than any normal person should.</p>
+      <div class="tc-quote">"I kept thinking about what you'd actually need to find if you just got displaced."</div>
+    </div>
+    <div class="team-card">
+      <div class="tc-name">[ Your Name ]</div>
+      <div class="tc-role">Research &middot; Writing</div>
+      <p class="tc-bio">Did most of the source work: USDA reports, WHO data, a lot of papers on disaster economics. Also wrote the copy and was the one who kept pushing back whenever the color contrast got too low to read.</p>
+      <div class="tc-quote">"The 72-hour stat was the one that stuck with me. That's shorter than a long weekend."</div>
+    </div>
+  </div>
+
+  <div class="team-note">
+    <h2>Why this topic</h2>
+    <p>We went in thinking food insecurity and disaster relief were two separate things you'd study in different journals. Somewhere around week three we realized they were the same problem and researchers were just describing it from different angles. This project was our attempt to show that overlap on a map.</p>
+  </div>
+
+  <div class="pg-footer">
+    FloodRelief Connect &nbsp;&middot;&nbsp; AP Research, spring 2025 &nbsp;&middot;&nbsp; data from FEMA, NOAA, Feeding America
+  </div>
+</div>
+
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'map') {
+    setTimeout(function() {
+      if (!window.mapReady) { buildMap(); window.mapReady = true; }
+      else { window._map.invalidateSize(); }
+    }, 60);
+  }
+}
+
+var floodZones = [
+  {
+    id: 'houston', name: 'Greater Houston, TX',
+    lat: 29.7604, lng: -95.3698, severity: 'severe', color: '#b03020',
+    pop: '340,000',
+    desc: 'Recurring flash flooding along Buffalo Bayou. Agricultural and service workers hit hardest.',
+    jobs: [
+      { title: 'Emergency Construction Crew',        org: 'Harris County Recovery', loc: 'Katy, TX',      type: 'Paid',      badge: 'badge-paid', res: ['Stipend','Meals'] },
+      { title: 'Food Bank Distribution Coordinator', org: 'Houston Food Bank',      loc: 'Houston, TX',   type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] },
+      { title: 'Debris Removal Crew',                org: 'FEMA Corps',             loc: 'Pasadena, TX',  type: 'Paid',      badge: 'badge-paid', res: ['Stipend'] },
+      { title: 'Community Health Outreach',          org: 'Red Cross TX Chapter',   loc: 'Galveston, TX', type: 'Temp',      badge: 'badge-temp', res: ['Stipend','Food Access'] }
+    ]
+  },
+  {
+    id: 'mississippi', name: 'Mississippi Delta',
+    lat: 32.7765, lng: -89.3951, severity: 'severe', color: '#b03020',
+    pop: '180,000',
+    desc: 'Spring flooding along the Mississippi River. Region had high food insecurity before the event.',
+    jobs: [
+      { title: 'Agricultural Recovery Worker', org: 'USDA Farm Recovery',         loc: 'Greenville, MS', type: 'Temp',      badge: 'badge-temp', res: ['Stipend','Food Access'] },
+      { title: 'Levee Inspection Support',     org: 'US Army Corps of Engineers', loc: 'Vicksburg, MS',  type: 'Paid',      badge: 'badge-paid', res: ['Stipend'] },
+      { title: 'Mobile Kitchen Volunteer',     org: 'Feeding America MS',         loc: 'Jackson, MS',    type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] }
+    ]
+  },
+  {
+    id: 'louisiana', name: 'South Louisiana Parishes',
+    lat: 29.9511, lng: -90.0715, severity: 'moderate', color: '#d07820',
+    pop: '95,000',
+    desc: 'Coastal flooding and hurricane surge. Fisheries and hospitality both affected.',
+    jobs: [
+      { title: 'Wetlands Restoration Tech', org: 'Nature Conservancy Gulf',  loc: 'Lafayette, LA',   type: 'Paid',      badge: 'badge-paid', res: ['Both'] },
+      { title: 'Disaster Case Manager',     org: 'Catholic Charities LA',    loc: 'Baton Rouge, LA', type: 'Temp',      badge: 'badge-temp', res: ['Stipend'] },
+      { title: 'Community Kitchen Lead',    org: 'Second Harvest Food Bank', loc: 'New Orleans, LA', type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] }
+    ]
+  },
+  {
+    id: 'midwest', name: 'Iowa / Nebraska',
+    lat: 41.2619, lng: -95.8608, severity: 'moderate', color: '#d07820',
+    pop: '67,000',
+    desc: 'Snowmelt flooding hit farmland and rural towns. Most of the food insecurity here is crop-loss driven.',
+    jobs: [
+      { title: 'Farm Recovery Coordinator', org: 'Midwest Farmers Union',  loc: 'Council Bluffs, IA', type: 'Paid',      badge: 'badge-paid', res: ['Stipend','Meals'] },
+      { title: 'Road Repair Crew',          org: 'Nebraska DOT Emergency', loc: 'Omaha, NE',          type: 'Temp',      badge: 'badge-temp', res: ['Both'] },
+      { title: 'Food Pantry Volunteer',     org: 'Food Bank of Lincoln',   loc: 'Lincoln, NE',        type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] }
+    ]
+  },
+  {
+    id: 'kentucky', name: 'Eastern Kentucky',
+    lat: 37.2707, lng: -83.0, severity: 'watch', color: '#c0980a',
+    pop: '41,000',
+    desc: 'Still recovering from 2022. Pre-existing food insecurity makes any new flooding particularly serious here.',
+    jobs: [
+      { title: 'Community Health Navigator', org: 'FEMA Individual Assistance',      loc: 'Hazard, KY',     type: 'Temp', badge: 'badge-temp', res: ['Stipend','Food Access'] },
+      { title: 'Supply Chain Recovery Aide', org: 'Appalachian Citizens Law Center', loc: 'Whitesburg, KY', type: 'Paid', badge: 'badge-paid', res: ['Both'] }
+    ]
+  },
+  {
+    id: 'carolinas', name: 'North Carolina Piedmont',
+    lat: 35.7796, lng: -78.6382, severity: 'watch', color: '#c0980a',
+    pop: '53,000',
+    desc: 'Hurricane-driven inland flooding. Migrant farm worker communities at high displacement risk.',
+    jobs: [
+      { title: 'Shelter Operations Coordinator', org: 'NC Emergency Management', loc: 'Raleigh, NC', type: 'Paid',      badge: 'badge-paid', res: ['Stipend'] },
+      { title: 'Crop Assessment Tech',           org: 'NC Farm Bureau Relief',   loc: 'Durham, NC',  type: 'Temp',      badge: 'badge-temp', res: ['Stipend','Food Access'] },
+      { title: 'Bilingual Outreach Volunteer',   org: 'El Pueblo NC',            loc: 'Raleigh, NC', type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] }
+    ]
+  },
+  {
+    id: 'florida', name: 'SW Florida Coast',
+    lat: 26.4, lng: -81.8, severity: 'severe', color: '#b03020',
+    pop: '210,000',
+    desc: 'Storm surge and extended flooding post-hurricane. Tourism and agriculture both severely disrupted, Lee and Collier counties.',
+    jobs: [
+      { title: 'Debris Removal Laborer',    org: 'FL Division of Emergency Mgmt', loc: 'Fort Myers, FL', type: 'Paid',      badge: 'badge-paid', res: ['Stipend','Meals'] },
+      { title: 'Food Distribution Driver',  org: 'Feeding Southwest Florida',     loc: 'Naples, FL',     type: 'Paid',      badge: 'badge-paid', res: ['Both'] },
+      { title: 'Shelter Support Volunteer', org: 'Red Cross FL Gulf Chapter',     loc: 'Fort Myers, FL', type: 'Volunteer', badge: 'badge-vol',  res: ['Food Access'] },
+      { title: 'Crop Loss Documentation',   org: 'USDA Farm Service Agency',      loc: 'Immokalee, FL',  type: 'Temp',      badge: 'badge-temp', res: ['Stipend'] }
+    ]
+  }
+];
+
+var foodCenters = [
+  { name: 'Houston Food Bank',              lat: 29.7510, lng: -95.3785, note: '~1,200 meals/day, 8am-6pm' },
+  { name: 'Red Cross Shelter, NE Houston',  lat: 29.8200, lng: -95.3100, note: '~800 meals/day, 24hr' },
+  { name: 'Second Harvest NOLA',            lat: 29.9400, lng: -90.0800, note: '~2,000 meals/day, 7am-7pm' },
+  { name: 'Feeding America Mississippi',    lat: 32.7800, lng: -89.4100, note: '~600 meals/day, 9am-5pm' },
+  { name: 'Feeding SW Florida',             lat: 26.5800, lng: -81.8700, note: '~950 meals/day, 8am-4pm' },
+  { name: 'Food Bank of Lincoln',           lat: 40.8136, lng: -96.7026, note: '~500 meals/day, Mon-Sat' },
+  { name: 'Second Harvest NWNC',            lat: 36.0999, lng: -80.2442, note: '~700 meals/day, 8am-5pm' }
+];
+
+var reliefHubs = [
+  { name: 'FEMA Joint Field Office, Houston', lat: 29.7200, lng: -95.5500, note: '14 partner orgs, 24hr ops' },
+  { name: 'Texas State EOC, Austin',          lat: 30.2849, lng: -97.7341, note: 'State emergency operations' },
+  { name: 'Red Cross Gulf Coast HQ',          lat: 29.9450, lng: -90.0600, note: 'Volunteer coordination, supply staging' },
+  { name: 'FL Emergency Coordination Center', lat: 26.6406, lng: -81.8723, note: 'Multi-agency, Lee County' },
+  { name: 'NC State Emergency Response',      lat: 35.7800, lng: -78.6400, note: 'Piedmont sector hub' }
+];
+
+var layerGroups = {};
+var activeFilters = { flood: true, jobs: true, food: true, hubs: true };
+
+function buildMap() {
+  var map = L.map('map', { center: [32.0, -91.5], zoom: 6 });
+  window._map = map;
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+
+  layerGroups.flood = L.layerGroup().addTo(map);
+  layerGroups.jobs  = L.layerGroup().addTo(map);
+  layerGroups.food  = L.layerGroup().addTo(map);
+  layerGroups.hubs  = L.layerGroup().addTo(map);
+
+  floodZones.forEach(function(zone) {
+    var radii   = { severe: 60000, moderate: 42000, watch: 28000 };
+    var opacity = { severe: 0.15,  moderate: 0.11,  watch: 0.08  };
+
+    L.circle([zone.lat, zone.lng], {
+      radius: radii[zone.severity], color: zone.color,
+      fillColor: zone.color, fillOpacity: opacity[zone.severity], weight: 1
+    }).addTo(layerGroups.flood);
+
+    var zm = L.circleMarker([zone.lat, zone.lng], {
+      radius: 8, color: '#fff', weight: 2, fillColor: zone.color, fillOpacity: 1
+    }).addTo(layerGroups.flood);
+
+    var popHTML = '<div class="lf-popup">'
+      + '<h4>' + zone.name + '</h4>'
+      + '<p>' + zone.desc + '</p>'
+      + '<div class="pop-meta">Est. displaced: <strong>' + zone.pop + '</strong> &nbsp;| Listings: <strong>' + zone.jobs.length + '</strong></div>'
+      + '<button onclick="loadZoneJobs(\'' + zone.id + '\')">See jobs in this area</button>'
+      + '</div>';
+
+    zm.bindPopup(popHTML, { maxWidth: 240 });
+    zm.on('click', function() { loadZoneJobs(zone.id); });
+  });
+
+  floodZones.forEach(function(zone) {
+    zone.jobs.forEach(function(job, idx) {
+      var jlat = zone.lat + (Math.sin(idx * 1.7) * 0.35);
+      var jlng = zone.lng + (Math.cos(idx * 1.3) * 0.45);
+      var jIcon = L.divIcon({
+        html: '<div style="width:9px;height:9px;background:#2a7a40;border:2px solid #fff;border-radius:50%;"></div>',
+        iconSize: [9,9], className: ''
+      });
+      L.marker([jlat, jlng], { icon: jIcon })
+        .bindPopup('<div class="lf-popup"><h4>' + job.title + '</h4>'
+          + '<p>' + job.org + ', ' + job.loc + '</p>'
+          + '<div class="pop-meta">Type: <strong>' + job.type + '</strong> &nbsp;| Includes: <strong>' + job.res.join(', ') + '</strong></div>'
+          + '<button onclick="loadZoneJobs(\'' + zone.id + '\')">All jobs in this zone</button></div>', { maxWidth: 230 })
+        .addTo(layerGroups.jobs);
+    });
+  });
+
+  foodCenters.forEach(function(fc) {
+    var fIcon = L.divIcon({
+      html: '<div style="width:9px;height:9px;background:#2060a0;border:2px solid #fff;border-radius:50%;"></div>',
+      iconSize: [9,9], className: ''
+    });
+    L.marker([fc.lat, fc.lng], { icon: fIcon })
+      .bindPopup('<div class="lf-popup"><h4>' + fc.name + '</h4><p>' + fc.note + '</p></div>', { maxWidth: 210 })
+      .addTo(layerGroups.food);
+  });
+
+  reliefHubs.forEach(function(hub) {
+    var hIcon = L.divIcon({
+      html: '<div style="width:9px;height:9px;background:#6a2a90;border:2px solid #fff;border-radius:1px;"></div>',
+      iconSize: [9,9], className: ''
+    });
+    L.marker([hub.lat, hub.lng], { icon: hIcon })
+      .bindPopup('<div class="lf-popup"><h4>' + hub.name + '</h4><p>' + hub.note + '</p></div>', { maxWidth: 220 })
+      .addTo(layerGroups.hubs);
+  });
+}
+
+function toggleFilter(key) {
+  activeFilters[key] = !activeFilters[key];
+  document.getElementById('f-' + key).classList.toggle('on', activeFilters[key]);
+  if (!window._map) return;
+  if (activeFilters[key]) { window._map.addLayer(layerGroups[key]); }
+  else                    { window._map.removeLayer(layerGroups[key]); }
+}
+
+function loadZoneJobs(zoneId) {
+  var zone = floodZones.find(function(z) { return z.id === zoneId; });
+  if (!zone) return;
+
+  var html = '<div class="zone-label">' + zone.name + ' &mdash; ' + zone.jobs.length + ' listings</div>';
+
+  zone.jobs.forEach(function(job) {
+    html += '<div class="job-card">'
+      + '<div class="jc-top">'
+      +   '<span class="job-title">' + job.title + '</span>'
+      +   '<span class="job-badge ' + job.badge + '">' + job.type + '</span>'
+      + '</div>'
+      + '<div class="job-org">' + job.org + ', ' + job.loc + '</div>'
+      + '<div class="job-tags">'
+      + job.res.map(function(r) { return '<span class="resource-tag">' + r + '</span>'; }).join('')
+      + '</div></div>';
+  });
+
+  html += '<div style="padding:10px 2px 2px;font-size:11px;color:#7a5030;border-top:1px solid #c8a870;margin-top:6px;font-weight:300;">'
+    + 'Food sites (blue dots) are within roughly 15 miles of this zone.'
+    + '</div>';
+
+  document.getElementById('sidebar-results').innerHTML = html;
+}
+</script>
+</body>
+</html>
